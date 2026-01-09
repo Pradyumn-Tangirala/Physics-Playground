@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route } from 'react-router-dom';
 import WaveInterference from './WaveInterference';
 import LandingPage from './LandingPage';
 import Chatbot from './Chatbot';
