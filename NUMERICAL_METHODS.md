@@ -140,14 +140,16 @@ The relative error is (T_sim − T_exact)/T_exact, with one period measured from
 
 | θ₀ | Exact T (L = 1 m, g = 9.81) | T/T₀ | Euler 1 ms | Euler 10 ms | Sympl. 1 ms | Sympl. 10 ms | RK4 1 ms | RK4 10 ms |
 |---|---|---|---|---|---|---|---|---|
-| 1° | 2.00610 s | 1.00002 | 3.6e-6 | 3.3e-4 | −4.1e-7 | −4.1e-5 | −3.8e-11 | −1.4e-7 |
-| 10° | 2.00989 s | 1.00191 | 3.2e-5 | 6.3e-4 | −4.0e-7 | −4.0e-5 | 4.0e-11 | 8.8e-9 |
-| 30° | 2.04099 s | 1.01741 | 2.6e-4 | 3.1e-3 | −3.5e-7 | −3.5e-5 | 1.5e-12 | 5.4e-8 |
-| 60° | 2.15287 s | 1.07318 | 1.1e-3 | 1.2e-2 | −2.0e-7 | −2.1e-5 | −2.0e-11 | 1.3e-7 |
-| 90° | 2.36784 s | 1.18034 | 2.7e-3 | 3.0e-2 | 4.4e-11* | 6.6e-8* | −4.2e-11 | −7.6e-8 |
-| 120° | 2.75409 s | 1.37288 | 6.1e-3 | 7.4e-2 | 2.0e-7 | 2.0e-5 | −2.5e-11 | 1.1e-7 |
-| 150° | 3.53510 s | 1.76220 | 1.9e-2 | n/a | 3.5e-7 | 3.5e-5 | 6.4e-12 | −6.1e-8 |
-| 170° | 4.89352 s | 2.43936 | n/a | n/a | 4.0e-7 | 4.0e-5 | −4.2e-11 | −7.0e-8 |
+| 1° | 2.00610 s | 1.00002 | 3.6e-6 | 3.3e-4 | −4.1e-7 | −4.1e-5 | 7.2e-13 | 8.0e-9 |
+| 10° | 2.00989 s | 1.00191 | 3.2e-5 | 6.3e-4 | −4.0e-7 | −4.0e-5 | 7.1e-13 | 7.9e-9 |
+| 30° | 2.04099 s | 1.01741 | 2.6e-4 | 3.1e-3 | −3.5e-7 | −3.5e-5 | 6.4e-13 | 7.1e-9 |
+| 60° | 2.15287 s | 1.07318 | 1.1e-3 | 1.2e-2 | −2.0e-7 | −2.0e-5 | 4.4e-13 | 5.2e-9 |
+| 90° | 2.36784 s | 1.18034 | 2.7e-3 | 3.0e-2 | −2.7e-11* | 1.4e-7* | 2.9e-13 | 3.5e-9 |
+| 120° | 2.75409 s | 1.37288 | 6.1e-3 | 7.4e-2 | 2.0e-7 | 2.0e-5 | 2.6e-13 | 2.8e-9 |
+| 150° | 3.53510 s | 1.76220 | 1.9e-2 | n/a | 3.5e-7 | 3.6e-5 | 3.9e-13 | 1.3e-9 |
+| 170° | 4.89352 s | 2.43936 | n/a | n/a | 4.0e-7 | 4.0e-5 | 4.5e-13 | −1.8e-8 |
+
+Crossing times are located by cubic Hermite interpolation inside the step. An earlier version used linear interpolation, and its own error dominated the RK4 columns: about 10⁻¹¹ at 1 ms and 10⁻⁷ at 10 ms. With Hermite, the RK4 error drops by about 10⁴ from 10 ms to 1 ms, which is the fourth order showing through.
 
 \* Symplectic Euler's period error changes sign near 90°, so the small value there is a zero crossing of the error, not extra accuracy.
 
@@ -191,7 +193,7 @@ Notes:
 2. **Convergence tests:** measure the error at several step sizes and check the ratio between successive halvings (2 for first order, 16 for fourth order).
 3. **Invariant tests:** energy (exact multiplicative growth for Euler, a bounded band for symplectic Euler, h⁵ drift for RK4), and phase-space area (Jacobian determinant = 1 for symplectic Euler).
 4. **Structural tests:** RK4 calls `f` exactly 4 times at the right times; integrators don't mutate their input; an integrator works on an unrelated ODE (exponential decay), showing it isn't coupled to the pendulum.
-5. **Period measurement:** zero-crossing detection with linear interpolation, validated on a sampled sine wave. Because RK4 at 1 ms reproduces the exact period to about 10⁻¹¹, the interpolation error is evidently below that level.
+5. **Period measurement:** zero-crossing detection, with the crossing located on the cubic Hermite interpolant of the step (error O(h⁴)). Linear interpolation has an O(h²)·|x''| error, and x'' ≠ 0 at a crossing once there is damping: on a damped spring at Δt = 10 ms it put 1.7×10⁻⁶ on RK4's period, against 1.7×10⁻⁹ with Hermite. Tested on an exact damped solution (`analysis.test.js`).
 6. **System-level tests** of the simulations: lock-step comparison runs, identical initial conditions, frame-rate independence, and period events matching the exact value.
 7. **In-browser checks** of the production build with a manual frame scheduler (see "Results" below).
 
@@ -218,7 +220,7 @@ Notes:
   - In the phase portrait, Euler spirals outward off the axes, while symplectic Euler and RK4 lie on the exact dashed orbit.
   - Measured periods: RK4 2.15287 s and symplectic Euler 2.15283 s, both matching the exact 2.15287 s. Euler measured 2.70659 s (+25.7%, because its amplitude had grown).
 - *Period-vs-amplitude experiment:*
-  - RK4 at 10 ms matched the exact period within about 1e-7 from 10° to 170°.
+  - RK4 at 10 ms matched the exact period within about 1e-7 from 10° to 170° (measured with linear crossing interpolation at the time; with Hermite it is within 2e-8, table above).
   - Explicit Euler at 10 ms showed points increasingly above the exact curve, and no completed period beyond 145°.
 - *Oscillator Lab:*
   - With RK4 at 5 ms, the measured period was 2.8879 s against an exact 2.8879 s (relative difference 3.6e-9; L = 2 m, θ₀ = 30°).

@@ -47,6 +47,8 @@ src/
     integratorComparison.js   the same pendulum through all three integrators in lock-step, each measured
                               against the exact solution (or RK4 at Δt/20 when damped), evaluation counts
     dataLog.js                start / stop / clear / sample; rows stored at the simulation's own steps
+    dataLogStore.js           keeps the logs above the routes (one per lab and mode), so a remount does not lose them
+    studies.js, runStudy.js   the long studies, run on a Web Worker (studyWorker.js) with a main-thread fallback
     useLiveValue.js           re-reads a value a few times a second for text readouts
     waveSimulation.js         analytical lab: accumulated display phase ωt
     fdtdSimulation.js         numerical lab: FDTD grid, sources, detector average, blow-up detection
@@ -80,6 +82,7 @@ src/
     ExperimentRoute.jsx       remounts a lab when the address changes to a different experiment
     ValidationPanel.jsx       analytical vs simulated, absolute and relative error
     DataLogPanel.jsx          start / stop / clear / export CSV for a data log
+    DataLogProvider.jsx       session-wide log store; asks before a reload discards unexported rows
     ModelCard.jsx             renders a model card; ExplainerSections.jsx renders the longer explanations
     SimulateLink.jsx          "Simulate this" from a solver, or the reason it is not possible
     SolverPage.jsx            layout pieces shared by the three solver pages
@@ -227,7 +230,17 @@ every 250 ms: useLiveValue(() => validationRows(state, params)) ──► Valida
               (exact period / exact θ(t) / exact x(t) / energy at release vs the simulation)
 ```
 
-Validation references are withdrawn, not faked, when they stop applying. If a physical parameter changes mid-motion, the exact solution no longer describes the motion: `sync` clears the release, and the panel says why the row is unavailable.
+Validation references are withdrawn, not faked, when they stop applying. If a physical parameter changes mid-motion, the exact solution no longer describes the motion: `sync` clears the release, and the panel says why the row is unavailable. A change while the bob is still held at its release point (no simulated time has passed, as during a drag) is a new release instead, so the outcome does not depend on whether React delivers the new parameters before or after the next frame.
+
+The logs live in `DataLogProvider` (above the routes), not in the pages. A preset or the Back button remounts the lab with fresh state, but the log carries on: the simulation clock restarts at 0, so the next sample starts a new run number.
+
+### Long studies (Web Worker)
+
+```
+Run button ──► runStudy(name, args) ──► one shared Worker (studyWorker.js) ──► STUDIES[name](args)
+                    │                         integrators are sent by id; results are plain numbers
+                    └─ no Worker / worker fails to load ──► the same function on the main thread
+```
 
 ---
 

@@ -144,7 +144,7 @@ I(θ) = cos θ · [A₁² + A₂² + 2A₁A₂ cos(k d sin θ + φ)] · sinc²(k
 **Reading the table.** Two separate approximations are visible:
 
 1. **"Sim vs λD/d"** contains the **small-angle approximation**. With λ/d = 0.2 it costs about 5%, at any distance.
-2. **"Sim vs Fraunhofer"** contains only **near-field (Fresnel) effects**. It shrinks as D grows past the Fraunhofer distance L²/λ, where L is the aperture size: from 0.1% at 1.65 × L²/λ to 0.0003% at 33 ×. The simulation includes curved wavefronts exactly; the formula does not.
+2. **"Sim vs Fraunhofer"** contains only **near-field (Fresnel) effects**. It shrinks as D grows past the Fraunhofer distance L²/λ, where L is the aperture size: from 0.1% at 1.65 × L²/λ to 0.0003% at 33 ×. The simulation includes the curvature of the wavefronts; the formula does not. (Each sub-source uses the far-field form of a 2-D cylindrical wave, √(D/r)·e^{ikr}, which is accurate for r ≫ λ. The screen is always many wavelengths away, but the 2-D field view is only approximate within about a wavelength of a slit.)
 
 **Near-field asymmetry.** With unequal amplitudes (A₂ = 0.4) the pattern tilts slightly towards the brighter slit, giving a profile error of 0.46% against 0.01% for equal slits. This is physical. Each slit's own diffraction envelope is centred on that slit (y = ±d/2), not on the axis, and the stronger slit's envelope dominates. Swapping A₁ and A₂ mirrors the error exactly. It vanishes in the Fraunhofer limit.
 

@@ -38,7 +38,9 @@ export default defineConfig({
         },
     ],
     webServer: {
-        command: `npm run build && npx vite preview --port ${PORT} --strictPort`,
+        // E2E_PREBUILT=1 serves the dist/ that is already there instead of building
+        // one: the deploy workflow unpacks the exact artifact it is about to publish.
+        command: `${process.env.E2E_PREBUILT ? '' : 'npm run build && '}npx vite preview --port ${PORT} --strictPort`,
         url: BASE,
         reuseExistingServer: !process.env.CI,
         timeout: 120_000,

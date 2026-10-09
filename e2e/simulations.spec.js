@@ -15,7 +15,7 @@ test.describe('Oscillator Lab: start, pause, resume, reset', () => {
         await expectAnimating(canvas);
 
         // After two periods a measured period appears in the validation panel; reset clears it.
-        const period = page.getByRole('region', { name: 'Validation' }).getByRole('row').filter({ hasText: /^Period T/ });
+        const period = page.getByRole('region', { name: 'Verification' }).getByRole('row').filter({ hasText: /^Period T/ });
         await expect(period).toHaveText(/\d\.\d{3,} s.*\d\.\d{3,} s/, { timeout: 10_000 });
         await page.getByRole('button', { name: /reset/i }).click();
         await expect(period).toContainText('measuring…');

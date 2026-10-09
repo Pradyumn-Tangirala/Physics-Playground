@@ -19,8 +19,8 @@ Two GitHub Actions workflows, both using `npm ci` against the committed `package
 | Job | Steps |
 |---|---|
 | `build` | `npm ci` → lint → `npm test` → `npm run build` → `configure-pages` → `upload-pages-artifact` (`dist/`) |
-| `e2e` | Chromium end-to-end against a build of the same commit |
-| `deploy` | Needs `build` and `e2e`. `deploy-pages` publishes the artifact from the `build` job, so the bytes that were tested are the bytes deployed. Runs with `pages: write` and `id-token: write` permissions only |
+| `e2e` | Downloads the Pages artifact from `build`, unpacks it into `dist/` and runs the Chromium end-to-end tests against it (`E2E_PREBUILT=1` makes Playwright serve that `dist/` instead of building) |
+| `deploy` | Needs `build` and `e2e`. `deploy-pages` publishes the same artifact the `e2e` job tested. Runs with `pages: write` and `id-token: write` permissions only |
 
 - **Concurrency:** deployments queue rather than race (`group: pages`, no cancellation). CI runs on a branch cancel older runs on the same ref.
 - **One-time repository setting:** Settings → Pages → Build and deployment → Source: **GitHub Actions**.
@@ -29,7 +29,7 @@ Two GitHub Actions workflows, both using `npm ci` against the committed `package
 
 ```
 push to main ──► deploy.yml: build (lint, test, vite build) ──► Pages artifact (dist/)
-                         └──► e2e (Chromium, production build)  ──┐
+                         └──► e2e (Chromium, on that artifact)   ──┐
                                                                    ▼
                                                    deploy-pages ──► https://pradyumn-tangirala.github.io/Physics-Playground/
 ```
@@ -71,7 +71,7 @@ Measured on the development machine, in the production build in Chromium, at dev
 | Kernel speed-ups against the pre-optimisation code (same inputs) | Wave field 2.7× (8.4× with wide slits), FDTD step 1.5×, blow-up check 6.1× |
 | Animation loops | Exactly one per mounted page, zero after leaving it (counted across 3 tours of 6 pages) |
 | Memory | JS heap +1.6 MB after 20 round trips through every lab (120 page changes), against a 15 MB budget |
-| Accuracy-vs-cost experiment (24 timed runs of 10 s simulated time) | About 0.2 s in total (measured in Node) |
+| Accuracy-vs-cost experiment (24 timed runs of 10 s simulated time) | Runs in a Web Worker. Longest frame gap during a run: 33 ms, against 167 ms with the study on the main thread (E2E test, budget 100 ms) |
 
 How these are kept low:
 - **One rAF loop per page**, driven by its timestamps. React is never on the per-frame path. Text readouts refresh four times a second.
@@ -92,7 +92,7 @@ The budgets in the performance tests are several times the measured values. They
   - A global `:focus-visible` outline shows focus.
 - **Screen readers:**
   - Canvases are `role="img"` with descriptive labels.
-  - Every number that matters is also in the DOM (validation panels, tables, readouts).
+  - Every number that matters is also in the DOM (verification panels, tables, readouts).
   - Live status messages use `role="status"` or `aria-live`.
   - Buttons have specific names ("Launch Projectile Motion", not "Launch").
 - **Motion:**
@@ -114,7 +114,7 @@ The budgets in the performance tests are several times the measured values. They
 
 | Browser | How it is tested | Result |
 |---|---|---|
-| Chromium (desktop) | Local and CI | 76/76 functional, plus 4 performance tests |
+| Chromium (desktop) | Local and CI | 77/77 functional, plus 4 performance tests |
 | Microsoft Edge | Local and CI (`channel: msedge`) | All pass (some Chromium-only checks, such as axe and synthetic touch, are skipped) |
 | Mobile (Pixel 7 emulation, Chromium) | Local and CI | All pass |
 | Tablet (Galaxy Tab S4 emulation, Chromium) | Local and CI | All pass |
@@ -130,7 +130,7 @@ Code uses standard APIs only: Canvas 2D, `ImageData`, Pointer Events, `ResizeObs
 - **Emulated devices.** The phone and tablet runs are Chromium emulations (viewport, DPR, touch, user agent), not real devices.
 - **Machine-dependent timings.** The numbers in §4 are from one machine. The performance tests use loose budgets, and `npm run test:perf` is not a gate.
 - **Canvas content is not readable by screen readers.** The important numbers are mirrored in the DOM, but trajectories and fields are visual only.
-- **Data logging lives in memory.** It is capped at 200 000 rows and lost on reload until exported.
+- **Data logging lives in memory.** It is capped at 200 000 rows. Logs survive navigation within the tab, and the browser asks before a reload or close discards unexported rows.
 - **Optical wavelengths cannot be drawn to scale.** The analytical wave lab computes the laser screen pattern exactly but cannot draw the 2-D field at that scale. The FDTD lab is limited to macroscopic waves.
 - **No offline support (no service worker).** After a new deployment, a tab that was already open may fail to load a lab chunk. The error boundary then offers Reload.
 - **The live site updates only through `deploy.yml`.** Merging to `main` deploys; nothing else does.

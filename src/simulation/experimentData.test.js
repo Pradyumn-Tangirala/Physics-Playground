@@ -3,7 +3,7 @@
 
 import { describe, it, expect } from 'vitest';
 import {
-    oscillatorSimulation, holdAt, validationRows, logColumns, logRow, exactPositionNow, lastPeriod,
+    oscillatorSimulation, holdAt, validationRows, smallAngleComparison, logColumns, logRow, exactPositionNow, lastPeriod,
 } from './oscillatorSimulation';
 import { integratorComparison, evaluations, LOG_COLUMNS, logRows, REFERENCE_SUBSTEPS } from './integratorComparison';
 import { flightReport, REPORT_COLUMNS, predictFlights } from './projectileSimulation';
@@ -40,7 +40,8 @@ describe('oscillator lab', () => {
         const rows = validationRows(state, spring);
         const x = row(rows, 'Position x(t)');
         expect(Math.abs(x.simulated - x.analytical)).toBeLessThan(1e-8);
-        expect(Math.abs(row(rows, 'Period T').simulated / row(rows, 'Period T').analytical - 1)).toBeLessThan(1e-6);
+        // Hermite crossing location: linear interpolation alone put ~10⁻⁶ on this (x'' ≠ 0 at a crossing with damping).
+        expect(Math.abs(row(rows, 'Period T').simulated / row(rows, 'Period T').analytical - 1)).toBeLessThan(1e-9);
         expect(row(rows, 'Energy E')).toBeUndefined(); // not conserved with damping
     });
 
@@ -57,6 +58,31 @@ describe('oscillator lab', () => {
         oscillatorSimulation.sync(state, { ...pendulum, lengthM: 2 });
         holdAt(state, 0.3);
         expect(exactPositionNow(state, pendulum)).toBeCloseTo(0.3, 12);
+    });
+
+    it('keeps them when a drag changes the length while the bob is held, in either update order', () => {
+        const dragged = { ...pendulum, lengthM: 2 };
+        for (const order of [[pendulum, dragged], [dragged]]) {
+            const state = run(oscillatorSimulation, pendulum, 1);
+            holdAt(state, 0.3);
+            for (const p of order) oscillatorSimulation.sync(state, p); // a frame may still see the old parameters
+            expect(exactPositionNow(state, dragged)).toBeCloseTo(0.3, 12);
+            oscillatorSimulation.step(state, dragged, 1);
+            oscillatorSimulation.sync(state, dragged);
+            expect(row(validationRows(state, dragged), 'Angle θ(t)')).toBeDefined();
+        }
+    });
+
+    it('reports the small-angle period as a model comparison, not as a validation row', () => {
+        const state = run(oscillatorSimulation, pendulum, 1);
+        expect(validationRows(state, pendulum).map((r) => r.quantity)).not.toContain('Period vs small-angle');
+        const { smallAngle, exact, longerBy } = smallAngleComparison(state, pendulum);
+        expect(smallAngle).toBeCloseTo(2 * Math.PI * Math.sqrt(1 / 9.81), 12);
+        expect(longerBy).toBeCloseTo(exact / smallAngle - 1, 15);
+        expect(longerBy).toBeGreaterThan(0.03); // 40°: about 3% longer
+        expect(longerBy).toBeLessThan(0.035);
+        expect(smallAngleComparison(state, { ...pendulum, damping: 0.1 })).toBeNull();
+        expect(smallAngleComparison(state, spring)).toBeNull();
     });
 
     it('has no exact pendulum reference with damping', () => {

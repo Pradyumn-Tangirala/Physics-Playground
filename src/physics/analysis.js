@@ -4,17 +4,24 @@
  * Period detector: records downward zero crossings of the position
  * (x goes from > 0 to ≤ 0) and reports the time between consecutive ones.
  *
- * The crossing time inside a step is found by linear interpolation between the
- * two samples. Near x = 0 the pendulum's acceleration is ≈ 0 (sin θ ≈ θ ≈ 0),
- * so x(t) is almost a straight line there and the interpolation error is far
- * smaller than the step size (it is O(h³)·|x'''| per crossing).
+ * The crossing inside a step is located on the cubic Hermite interpolant of
+ * the step (locateCrossing below), whose error is O(h⁴). Linear interpolation
+ * is not good enough: its error is O(h²)·|x''| at the crossing, and with
+ * damping x'' = −2γv ≠ 0 there. For a damped spring at Δt = 10 ms it put a
+ * 1.7×10⁻⁶ error on RK4's period, a thousand times RK4's own (1.7×10⁻⁹),
+ * so the readout measured the interpolation instead of the integrator.
  */
 export const createPeriodDetector = () => ({ lastCrossing: null, periods: [] });
 
-/** Feeds one step (t₀, x₀) → (t₁, x₁). Returns the new period if one was completed, else null. */
-export function detectPeriod(detector, t0, x0, t1, x1) {
-    if (!(x0 > 0 && x1 <= 0)) return null;
-    const tc = t0 + (t1 - t0) * (x0 / (x0 - x1));
+/**
+ * Feeds one step (t₀, y₀) → (t₁, y₁) of a state vector whose first component
+ * is the position, with f the derivative function the step was integrated
+ * with. Returns the new period if one was completed, else null.
+ */
+export function detectPeriod(detector, t0, y0, t1, y1, f) {
+    if (!(y0[0] > 0 && y1[0] <= 0)) return null;
+    const { s } = locateCrossing(y0, f(y0, t0), y1, f(y1, t1), t1 - t0, 0);
+    const tc = t0 + (t1 - t0) * s;
     const last = detector.lastCrossing;
     detector.lastCrossing = tc;
     if (last === null) return null;

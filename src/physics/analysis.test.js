@@ -5,24 +5,46 @@ import { explicitEuler, symplecticEuler, rk4 } from './integrators';
 import { degToRad } from '../utils/units';
 
 describe('period detector', () => {
+    // x = cos(2πt/T) as the state [x, x'] of a harmonic oscillator.
+    const T = 1.7;
+    const w = (2 * Math.PI) / T;
+    const f = ([x, v]) => [v, -w * w * x];
+    const at = (t) => [Math.cos(w * t), -w * Math.sin(w * t)];
+
     it('measures the period of a sampled sine wave', () => {
-        const T = 1.7;
         const h = 0.01;
         const d = createPeriodDetector();
         const found = [];
-        for (let t = 0; t < 6; t += h) {
-            const p = detectPeriod(d, t, Math.cos((2 * Math.PI * t) / T), t + h, Math.cos((2 * Math.PI * (t + h)) / T));
+        for (let n = 0; n < 600; n++) {
+            const p = detectPeriod(d, n * h, at(n * h), (n + 1) * h, at((n + 1) * h), f);
             if (p !== null) found.push(p);
         }
         expect(found.length).toBeGreaterThanOrEqual(2);
-        found.forEach((p) => expect(p).toBeCloseTo(T, 4));
+        found.forEach((p) => expect(p).toBeCloseTo(T, 8));
     });
 
     it('ignores upward crossings and needs two downward crossings', () => {
+        const line = ([, v]) => [v, 0]; // x moving at constant speed: the crossing is exactly linear
         const d = createPeriodDetector();
-        expect(detectPeriod(d, 0, -1, 1, 1)).toBeNull(); // upward
-        expect(detectPeriod(d, 1, 1, 2, -1)).toBeNull(); // first downward
-        expect(detectPeriod(d, 3, 1, 4, -1)).toBeCloseTo(2, 12);
+        expect(detectPeriod(d, 0, [-1, 2], 1, [1, 2], line)).toBeNull(); // upward
+        expect(detectPeriod(d, 1, [1, -2], 2, [-1, -2], line)).toBeNull(); // first downward
+        expect(detectPeriod(d, 3, [1, -2], 4, [-1, -2], line)).toBeCloseTo(2, 12);
+    });
+
+    it('stays accurate where the motion curves at the crossing (damping), unlike linear interpolation', () => {
+        // Damped oscillator, exact solution x = e^{−γt}cos(ω_d t): x'' = −2γx' ≠ 0 at x = 0.
+        const gamma = 0.8;
+        const wd = 3;
+        const fd = ([x, v]) => [v, -(wd * wd + gamma * gamma) * x - 2 * gamma * v];
+        const exact = (t) => {
+            const e = Math.exp(-gamma * t);
+            return [e * Math.cos(wd * t), -e * (gamma * Math.cos(wd * t) + wd * Math.sin(wd * t))];
+        };
+        const h = 0.02;
+        const d = createPeriodDetector();
+        for (let n = 0; n < 400; n++) detectPeriod(d, n * h, exact(n * h), (n + 1) * h, exact((n + 1) * h), fd);
+        const Td = (2 * Math.PI) / wd;
+        d.periods.forEach((p) => expect(Math.abs(p - Td) / Td).toBeLessThan(1e-6));
     });
 });
 

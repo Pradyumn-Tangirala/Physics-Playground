@@ -18,7 +18,7 @@ export function measurePeriod({ amplitude, length, g, integrator, dt, maxTime })
     let y = [Math.abs(amplitude), 0];
     for (let t = 0; t < limit; t += dt) {
         const next = integrator.step(y, f, dt, t);
-        const period = detectPeriod(detector, t, y[0], t + dt, next[0]);
+        const period = detectPeriod(detector, t, y, t + dt, next, f);
         y = next;
         if (period !== null) return period;
     }
@@ -61,8 +61,13 @@ function integrateSteps(integrator, f, y0, dt, steps) {
     return y;
 }
 
-/** Wall-clock seconds per call of `run`, averaged over enough repeats to be measurable. */
+/**
+ * Wall-clock seconds per call of `run`, averaged over enough repeats to be
+ * measurable. One untimed call first, so the JavaScript engine has compiled
+ * the integrator before the clock starts.
+ */
 function secondsPerRun(run, now) {
+    run();
     const start = now();
     let repeats = 0;
     do {

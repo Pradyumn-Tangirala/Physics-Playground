@@ -93,7 +93,7 @@ describe('spring: numerical period and energy behaviour', () => {
         let y = [0.5, 0];
         for (let i = 0; i < Math.round(seconds / h); i++) {
             const next = integrator.step(y, f, h);
-            detectPeriod(det, i * h, y[0], (i + 1) * h, next[0]);
+            detectPeriod(det, i * h, y, (i + 1) * h, next, f);
             y = next;
         }
         return det.periods.at(-1);

@@ -1,5 +1,6 @@
-# main: lint, test, build, then deploy that exact build to GitHub Pages using
-# the official Pages actions (no gh-pages branch, no manual deploys).
+# main: lint, test, build, run the end-to-end tests against that exact build
+# artifact, then deploy it to GitHub Pages using the official Pages actions
+# (no gh-pages branch, no manual deploys).
 #
 # One-time repository setting: Settings → Pages → Build and deployment →
 # Source: "GitHub Actions".
@@ -38,7 +39,7 @@ jobs:
           path: dist
 
   e2e:
-    name: End-to-end (Chromium)
+    name: End-to-end (Chromium) on the artifact being deployed
     runs-on: ubuntu-latest
     needs: build
     steps:
@@ -48,8 +49,17 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
+      # Test the bytes that will be published, not a second build of the same commit.
+      - uses: actions/download-artifact@v4
+        with:
+          name: github-pages
+          path: pages-artifact
+      - name: Unpack the Pages artifact into dist/
+        run: mkdir -p dist && tar -xf pages-artifact/artifact.tar -C dist
       - run: npx playwright install --with-deps chromium
       - run: npx playwright test --project=chromium
+        env:
+          E2E_PREBUILT: '1'
 
   deploy:
     name: Deploy to GitHub Pages

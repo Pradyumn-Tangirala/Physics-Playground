@@ -34,7 +34,9 @@ await shot('oscillator-lab', '#/shm?mode=pendulum&angle=60&length=2&g=9.81&ampli
 await shot('numerical-methods-lab', '#/numerical-methods?angle=60&length=1&g=9.81&damping=0&dt=0.05&show=euler,symplectic,rk4', wait(8000));
 await shot('accuracy-vs-cost', '#/numerical-methods', async (page) => {
     await page.getByRole('button', { name: 'Run accuracy vs cost' }).click();
-    await page.waitForTimeout(800);
+    // The study runs on a Web Worker; wait for its table, then for the chart to redraw.
+    await page.getByRole('region', { name: 'Accuracy and cost per method and timestep' }).waitFor({ timeout: 20_000 });
+    await page.waitForTimeout(300);
 }, { element: 'section[aria-labelledby="cost-title"]' });
 await shot('projectile-lab', '#/projectile?mode=compare&v=60&angle=45&h=0&g=9.81&rho=1.225&cd=0.47&area=0.0042&mass=0.145&method=rk4&dt=0.01&speed=10', async (page) => {
     await page.getByRole('button', { name: 'FIRE' }).click();

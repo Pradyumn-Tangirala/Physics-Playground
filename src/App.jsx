@@ -3,6 +3,7 @@ import { HashRouter as Router, Routes, Route, useLocation, useNavigate } from 'r
 import LandingPage from './pages/LandingPage';
 import ErrorBoundary from './components/ErrorBoundary';
 import ExperimentRoute from './components/ExperimentRoute';
+import DataLogProvider from './components/DataLogProvider';
 import './App.css';
 
 // Every page except the landing page is its own chunk, downloaded on first
@@ -73,9 +74,11 @@ function NotFound() {
 
 function App() {
     return (
-        <Router>
-            <AppRoutes />
-        </Router>
+        <DataLogProvider>
+            <Router>
+                <AppRoutes />
+            </Router>
+        </DataLogProvider>
     );
 }
 

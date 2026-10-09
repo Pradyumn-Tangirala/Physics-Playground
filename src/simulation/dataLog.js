@@ -1,6 +1,7 @@
 // Data logging: stores simulation samples while recording is on. Pure data —
 // the simulation calls recordSample() from its step loop, the UI starts,
-// stops, clears and exports.
+// stops, clears and exports. The logs themselves are kept by
+// dataLogStore.js, above the pages, so they survive navigation.
 //
 // Samples are taken at the simulation's own steps (not at display frames), at
 // most one per `interval` of simulated time (0 = every step). If the
@@ -15,8 +16,16 @@ export const LOG_INTERVALS = [0, 0.01, 0.05, 0.1];
 
 /** columns: [{ key, label, unit? }], not counting the run column added in front. */
 export function createDataLog(columns, { maxRows = MAX_LOG_ROWS } = {}) {
-    return { columns, rows: [], recording: false, interval: 0, run: 0, nextTime: 0, lastTime: -Infinity, full: false, maxRows };
+    return { columns, rows: [], savedRows: 0, recording: false, interval: 0, run: 0, nextTime: 0, lastTime: -Infinity, full: false, maxRows };
 }
+
+/** Records that every row so far has been exported. */
+export function markExported(log) {
+    log.savedRows = log.rows.length;
+}
+
+/** True when the log holds rows that have not been exported (they would be lost on reload). */
+export const hasUnsavedRows = (log) => log.rows.length > log.savedRows;
 
 export function startLogging(log, interval = log.interval) {
     if (log.full) return;
@@ -33,6 +42,7 @@ export function stopLogging(log) {
 
 export function clearLog(log) {
     log.rows = [];
+    log.savedRows = 0;
     log.run = log.recording ? 1 : 0;
     log.full = false;
     log.nextTime = -Infinity;

@@ -24,11 +24,11 @@ export const MODEL_CARDS = {
             ['g', 'gravitational acceleration', 'm/s²'],
             ['γ', 'damping rate', 's⁻¹'],
             ['m', 'bob mass (1 kg; it cancels out of the motion)', 'kg'],
-            ['E', 'mechanical energy', 'J'],
+            ['E', 'mechanical energy of the 1 kg bob (so numerically also J/kg)', 'J'],
         ],
         limitations: [
             'Release angles are limited to ±90° here so the bob stays in view; the Numerical Methods Lab goes up to 170°.',
-            'With damping there is no closed-form solution, so position and period are not validated when γ > 0.',
+            'With damping there is no closed-form solution, so position and period are not verified when γ > 0.',
             'The exact references (K, cd) assume release from rest; dragging the bob releases it from rest.',
         ],
     },
@@ -122,7 +122,7 @@ export const MODEL_CARDS = {
         assumptions: [
             'Scalar, monochromatic, fully coherent waves in two dimensions.',
             'Each slit is a row of coherent point sources (Kirchhoff boundary conditions).',
-            'Cylindrical spreading √(D/r) from each source.',
+            'Each source radiates the far-field form of a 2-D cylindrical wave, √(D/r)·e^{ikr}, accurate when r ≫ λ; no obliquity factor.',
         ],
         units: [
             ['λ', 'wavelength', 'm (shown in mm or nm)'],
@@ -134,6 +134,7 @@ export const MODEL_CARDS = {
         ],
         limitations: [
             'No reflections from the barrier, no barrier thickness, no polarisation.',
+            'Within about a wavelength of a slit the drawn field is approximate (the far-field source form); the screen is always far enough away.',
             'β = λD/d ignores the sloping envelope and sin θ ≠ tan θ, so it differs from the simulated pattern at large λ/d.',
             'The 2-D field view cannot be drawn to scale for light; the screen pattern still is.',
             'This evaluates a solution formula: it does not solve the wave equation (the FDTD lab does).',
