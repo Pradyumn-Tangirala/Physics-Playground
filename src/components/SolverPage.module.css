@@ -1,0 +1,178 @@
+.page {
+    box-sizing: border-box;
+    min-height: 100vh;
+    padding: 40px 20px;
+    background: #12121c;
+    color: white;
+    font-family: 'Inter', sans-serif;
+}
+
+.header {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1000px;
+    margin: 0 auto 32px;
+}
+
+.header h1 {
+    margin: 0;
+    font-size: clamp(1.8rem, 5vw, 2.5rem);
+    font-weight: 800;
+    color: var(--accent);
+}
+
+.columns {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 30px;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.card {
+    flex: 1 1 340px;
+    min-width: 0;
+    padding: 30px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.card h2 {
+    margin: 0 0 20px;
+    font-size: 1.2rem;
+    color: #ccc;
+}
+
+.field {
+    display: block;
+    margin-bottom: 15px;
+    color: #bbb;
+    font-size: 0.9rem;
+}
+
+.field > span,
+.field > label {
+    display: block;
+    margin-bottom: 6px;
+}
+
+.field input,
+.field select {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.3);
+    color: white;
+    font: inherit;
+}
+
+.field select option {
+    background: #1a1a1a;
+}
+
+.field input:focus-visible,
+.field select:focus-visible {
+    outline: none;
+    border-color: var(--accent);
+}
+
+.calculate {
+    width: 100%;
+    min-height: 44px;
+    margin-top: 8px;
+    border: none;
+    border-radius: 10px;
+    background: var(--accent);
+    color: #0b0b12;
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.calculate:hover {
+    filter: brightness(1.1);
+}
+
+.calculate:focus-visible {
+    outline: 2px solid white;
+    outline-offset: 2px;
+}
+
+.note {
+    margin: 14px 0 0;
+    color: #aaa;
+    font-size: 0.8rem;
+    line-height: 1.5;
+}
+
+.empty {
+    color: #aaa;
+}
+
+.error {
+    color: #ff8a80;
+}
+
+.tiles {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+    gap: 10px;
+    margin: 0 0 20px;
+}
+
+.tiles > div {
+    padding: 10px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.07);
+    text-align: center;
+}
+
+.tiles dt {
+    color: #aaa;
+    font-size: 0.8rem;
+}
+
+.tiles dd {
+    margin: 4px 0 0;
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
+.formula {
+    margin: 0 0 16px;
+    padding: 12px 15px;
+    border-left: 4px solid var(--accent);
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.3);
+    font-family: monospace;
+    font-size: 1.1rem;
+}
+
+.steps {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.steps li {
+    padding: 10px;
+    border-radius: 6px;
+    background: rgba(0, 0, 0, 0.25);
+    font-family: monospace;
+    font-size: 0.9rem;
+    overflow-wrap: anywhere;
+}
+
+.steps li:last-child {
+    color: var(--accent);
+    font-weight: 700;
+}

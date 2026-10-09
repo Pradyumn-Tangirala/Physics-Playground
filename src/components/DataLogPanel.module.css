@@ -1,0 +1,77 @@
+.panel {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 0 0 20px;
+    padding: 12px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.04);
+    color: #aaa;
+    font-size: 0.85rem;
+}
+
+.title {
+    margin: 0;
+    font-size: 1rem;
+    color: #e6e6e6;
+}
+
+.row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.start,
+.stop,
+.secondary {
+    min-height: 40px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.start {
+    flex: 1;
+    border: none;
+    background: #b33939;
+    color: white;
+}
+
+.stop {
+    flex: 1;
+    border: none;
+    background: #555;
+    color: white;
+}
+
+.secondary {
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    background: transparent;
+    color: #eee;
+}
+
+.start:disabled,
+.secondary:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.start:focus-visible,
+.stop:focus-visible,
+.secondary:focus-visible {
+    outline: 2px solid #4facfe;
+    outline-offset: 2px;
+}
+
+.status {
+    margin: 0;
+}

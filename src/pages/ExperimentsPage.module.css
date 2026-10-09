@@ -1,0 +1,57 @@
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
+    gap: 16px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.preset {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 16px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(0, 0, 0, 0.25);
+}
+
+.preset h3 {
+    margin: 0;
+    font-size: 1.05rem;
+    color: #eee;
+}
+
+.summary {
+    margin: 0;
+    color: #ccc;
+    font-size: 0.9rem;
+}
+
+.lookFor {
+    flex: 1;
+    margin: 0;
+    color: #aaa;
+    font-size: 0.85rem;
+    line-height: 1.5;
+}
+
+.open {
+    align-self: flex-start;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    color: #4facfe;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.open:hover {
+    text-decoration: underline;
+}
+
+.open:focus-visible {
+    outline: 2px solid #4facfe;
+    outline-offset: 2px;
+}

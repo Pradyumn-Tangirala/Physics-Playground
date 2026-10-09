@@ -1,0 +1,99 @@
+.panel {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.title {
+    margin: 0;
+    font-size: 1rem;
+    color: #e6e6e6;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+}
+
+.table th,
+.table td {
+    padding: 6px 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    text-align: right;
+    white-space: nowrap;
+}
+
+.table thead th {
+    color: #999;
+    font-weight: 600;
+}
+
+.table th[scope='row'],
+.table thead th:first-child {
+    text-align: left;
+    white-space: normal;
+    color: #ddd;
+    font-weight: 500;
+}
+
+.table td {
+    font-family: monospace;
+    color: #eee;
+}
+
+.reference {
+    display: block;
+    color: #999;
+    font-size: 0.75rem;
+}
+
+.table td.unavailable {
+    text-align: left;
+    white-space: normal;
+    font-family: inherit;
+    color: #999;
+}
+
+.caption {
+    margin: 0;
+    color: #999;
+    font-size: 0.8rem;
+    line-height: 1.5;
+}
+
+/* Narrow sidebars: each row becomes a small card, one labelled value per line. */
+.compact .table thead {
+    display: none;
+}
+
+.compact .table tr {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.compact .table th,
+.compact .table td {
+    padding: 0;
+    border: none;
+}
+
+.compact .table td {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.compact .table td::before {
+    color: #888;
+    font-family: 'Inter', sans-serif;
+}
+
+.compact .table td:nth-of-type(1)::before { content: 'analytical'; }
+.compact .table td:nth-of-type(2)::before { content: 'simulated'; }
+.compact .table td:nth-of-type(3)::before { content: 'absolute error'; }
+.compact .table td:nth-of-type(4)::before { content: 'relative error'; }
+.compact .table td.unavailable::before { content: none; }

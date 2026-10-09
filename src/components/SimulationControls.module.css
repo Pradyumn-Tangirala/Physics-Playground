@@ -1,0 +1,155 @@
+.panel {
+    box-sizing: border-box;
+    color: white;
+    z-index: 10;
+}
+
+/* A full-height column beside the canvas (the page grid places it); on narrow
+   screens it becomes a normal section below the canvas. */
+.sidebarRight {
+    height: 100vh;
+    padding: 40px;
+    overflow-y: auto;
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(25, 25, 35, 0.95);
+}
+
+@media (max-width: 899px) {
+    .sidebarRight {
+        height: auto;
+        padding: 24px 16px 40px;
+        border-left: none;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+}
+
+.title {
+    margin: 0 0 25px;
+    font-size: 1.6rem;
+    font-weight: 800;
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.buttonRow {
+    display: flex;
+    gap: 10px;
+}
+
+.primaryButton,
+.secondaryButton {
+    padding: 12px;
+    white-space: nowrap;
+    border-radius: 8px;
+    color: white;
+    font-weight: bold;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.primaryButton {
+    flex: 2;
+    border: none;
+    background: var(--button-bg, #34495e);
+    box-shadow: var(--button-shadow, none);
+}
+
+.secondaryButton {
+    flex: 1;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: transparent;
+}
+
+.primaryButton:focus-visible,
+.secondaryButton:focus-visible {
+    outline: 2px solid #4facfe;
+    outline-offset: 2px;
+}
+
+.note {
+    margin: 12px 0 0;
+    font-size: 0.8rem;
+    line-height: 1.5;
+    color: #888;
+}
+
+.selectRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    color: #aaa;
+    font-size: 0.9rem;
+}
+
+.select {
+    padding: 4px 8px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    font: inherit;
+}
+
+.select:focus-visible {
+    outline: none;
+    border-color: #4facfe;
+}
+
+.select option {
+    background: #1a1a1a;
+}
+
+.readout {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 4px 12px;
+    margin: 0 0 20px;
+    padding: 12px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.04);
+    font-size: 0.8rem;
+}
+
+.readout dt {
+    color: #999;
+}
+
+.readout dd {
+    margin: 0;
+    text-align: right;
+    font-family: monospace;
+    color: #eee;
+}
+
+.inline {
+    position: relative;
+    padding: 24px;
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(25, 25, 35, 0.85);
+}
+
+/* A button that sits inline with other controls instead of filling a row. */
+.actionButton {
+    flex: none;
+    padding: 8px 18px;
+}
+
+.smallButton {
+    flex: none;
+    padding: 4px 12px;
+    font-size: 0.85rem;
+}
+
+/* Main actions at the top of a panel. */
+.topActions {
+    margin-bottom: 16px;
+}
+
+.noteTight {
+    margin: 0 0 16px;
+}

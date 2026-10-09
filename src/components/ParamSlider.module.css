@@ -1,0 +1,77 @@
+.param {
+    --accent: #4facfe;
+    margin-bottom: 20px;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.label {
+    color: #aaa;
+    font-size: 0.9rem;
+}
+
+.hint {
+    color: #9a9a9a; /* 4.5:1 or better on the dark panels */
+}
+
+.valueGroup {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.number {
+    width: 60px;
+    padding: 2px 5px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    font: inherit;
+    font-weight: bold;
+    text-align: right;
+}
+
+.number:focus-visible {
+    outline: none;
+    border-color: var(--accent);
+}
+
+.number[aria-invalid='true'] {
+    border-color: #ff6b6b;
+}
+
+.unit {
+    min-width: 30px;
+    font-weight: bold;
+    color: #ddd;
+}
+
+.range {
+    width: 100%;
+    accent-color: var(--accent);
+    cursor: pointer;
+}
+
+.range:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 4px;
+}
+
+.range:disabled,
+.number:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.error {
+    margin-top: 6px;
+    color: #ff8a80;
+    font-size: 0.8rem;
+}

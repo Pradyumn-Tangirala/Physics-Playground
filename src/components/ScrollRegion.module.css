@@ -1,0 +1,9 @@
+.region {
+    overflow-x: auto;
+    border-radius: 6px;
+}
+
+.region:focus-visible {
+    outline: 2px solid #4facfe;
+    outline-offset: 2px;
+}
