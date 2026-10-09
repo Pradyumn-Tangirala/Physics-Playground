@@ -53,7 +53,7 @@ const SECTIONS = [
             <ul>
                 <li>
                     <strong>Reflective:</strong> the edge is held at u = 0, so waves bounce back inverted, like a rope tied
-                    to a wall. Energy is conserved exactly by the scheme.
+                    to a wall. With rigid edges and no source, the scheme conserves a discrete energy (up to float32 round-off).
                 </li>
                 <li>
                     <strong>Absorbing:</strong> a damping layer (−σ ∂u/∂t, with σ growing quadratically into the layer)

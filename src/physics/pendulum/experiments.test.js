@@ -44,11 +44,12 @@ describe('accuracy vs cost', () => {
 });
 
 describe('period measurements', () => {
-    it('RK4 at 5 ms measures the exact period to 10⁻⁷ at 5° and 90°', () => {
+    // Measured: 5.0×10⁻¹⁰ and 2.3×10⁻¹⁰ at 5 ms; 8.0×10⁻⁹ and 3.5×10⁻⁹ at 10 ms (about 16×: fourth order).
+    it.each([[0.005, 1e-9], [0.01, 1e-8]])('RK4 at Δt = %s s measures the exact period to %s at 5° and 90°', (dt, tolerance) => {
         for (const deg of [5, 90]) {
             const amplitude = (deg * Math.PI) / 180;
-            const T = measurePeriod({ amplitude, length: 1, g: 9.81, integrator: rk4, dt: 0.005 });
-            expect(Math.abs(T - exactPeriod(amplitude, 1, 9.81)) / T).toBeLessThan(1e-7);
+            const T = measurePeriod({ amplitude, length: 1, g: 9.81, integrator: rk4, dt });
+            expect(Math.abs(T - exactPeriod(amplitude, 1, 9.81)) / T).toBeLessThan(tolerance);
         }
     });
 

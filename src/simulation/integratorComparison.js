@@ -92,7 +92,7 @@ export const integratorComparison = {
                 const reference = referenceAt(state, params, t + h);
                 for (const run of state.runs) {
                     const y = run.integrator.step(run.y, f, h, t);
-                    const period = detectPeriod(run.detector, t, run.y[0], t + h, y[0]);
+                    const period = detectPeriod(run.detector, t, run.y, t + h, y, f);
                     if (period !== null) newPeriods[run.id] = period;
                     run.y = y;
                     run.steps += 1;

@@ -15,10 +15,10 @@ Performance has its own suites (§6). Timings depend on the machine, so they nev
 
 | Command | What it runs |
 |---|---|
-| `npm test` | All Vitest projects: physics, simulation, validation, ui. **528 tests in 33 files, about 15 s.** |
+| `npm test` | All Vitest projects: physics, simulation, validation, ui. **537 tests in 34 files, about 15 s.** |
 | `npx vitest run --project physics` | One group (`physics`, `simulation`, `validation` or `ui`) |
 | `npm run test:coverage` | The same, with coverage. Fails if a coverage floor is broken (§7). Report in `coverage/`. |
-| `npm run test:e2e` | Playwright against the production build. Builds, starts `vite preview` under `/Physics-Playground/`, then runs 76 tests in each of 5 browser/device projects, plus 4 performance tests. |
+| `npm run test:e2e` | Playwright against the production build. Builds, starts `vite preview` under `/Physics-Playground/`, then runs 77 tests in each of 5 browser/device projects, plus 4 performance tests. With `E2E_PREBUILT=1` it serves the existing `dist/` instead of building (the deploy workflow uses this to test the artifact it publishes). |
 | `npx playwright test --project=mobile` | One project: `chromium`, `firefox`, `edge`, `mobile`, `tablet` or `performance` |
 | `npm run test:perf` | Before/after kernel benchmarks. Writes `test-results/perf-kernels.json`. |
 | `npm run test:ci` | Lint, then tests with coverage, then E2E. **The single command for CI.** |
@@ -33,11 +33,11 @@ The Vitest groups are configured as *projects* in `vitest.config.js`, each with 
 
 | Project | Environment | Tests | Contents |
 |---|---|---|---|
-| `physics` | node | 190 | Integrators, elliptic functions, pendulum (incl. the exact solution), spring, projectile (ideal, drag, flight, experiments), waves (interference, fringe comparison, field, FDTD), accuracy-vs-cost, solvers |
-| `simulation` | node | 60 | Lifecycle controller, every simulation definition, data logging, validation readouts, exported data, renderer geometry |
+| `physics` | node | 192 | Integrators, elliptic functions, pendulum (incl. the exact solution), spring, projectile (ideal, drag, flight, experiments), waves (interference, fringe comparison, field, FDTD), accuracy-vs-cost, solvers |
+| `simulation` | node | 66 | Lifecycle controller, every simulation definition, data logging, verification readouts, exported data, the study runner (worker and main-thread fallback), renderer geometry |
 | `validation` | node | 180 | Input validation across every solver; utilities and CSV; experiment-link encoding; presets; solver → simulation agreement |
-| `ui` | jsdom | 98 | `ParamSlider`, `useSimulation`, every lab page, solver pages, routing, error boundary, links, presets, logging and export |
-| E2E | 5 browser/device projects | 76 each + 4 | `chromium`, `edge`, `firefox`, `mobile` (Pixel 7), `tablet` (Galaxy Tab S4); then `performance` (serial, Chromium) |
+| `ui` | jsdom | 99 | `ParamSlider`, `useSimulation`, every lab page, solver pages, routing, error boundary, links, presets, logging and export |
+| E2E | 5 browser/device projects | 77 each + 4 | `chromium`, `edge`, `firefox`, `mobile` (Pixel 7), `tablet` (Galaxy Tab S4); then `performance` (serial, Chromium) |
 
 ### Physics, by your checklist
 
@@ -46,7 +46,7 @@ The Vitest groups are configured as *projects* in `vitest.config.js`, each with 
 | **Projectile** | 45° is the maximum range (scan of 1°–89°), and the optimum is below 45° from a height; complementary angles give equal range; analytical trajectory, landing, apex and impact speed; numerical vs analytical (RK4 exact to round-off, Euler ±½gΔt·t); convergence orders; drag reduces range; higher C_d reduces range; parameter validation |
 | **Pendulum** | Small-angle period (within 10⁻⁴); nonlinear period against the elliptic integral (within 10⁻⁸, 10°–170°); RK4 convergence (order 4.00 at 30°, and climbing towards 4 at 120°, §4); Euler drift; symplectic Euler bounded; RK4 conservation; damping removes energy; underdamped decay e^(−γt) and lengthened period; critical damping; overdamping |
 | **Spring** | Analytical period; numerical period from zero crossings (within 10⁻⁸); damped period; energy (Euler grows, symplectic bounded, RK4 conserves); energy decay as e^(−2γt); critical and overdamped exact solutions |
-| **Waves** | Wavelength (FDTD within 0.04% of its dispersion relation); propagation speed (within 1%); interference maxima (path difference = mλ); fringe spacing (laser within 0.01% of λD/d); single-slit sinc² envelope; FDTD stability; CFL limit exactly 1/√2; boundaries; FDTD against the analytical model |
+| **Waves** | Wavelength (FDTD within 0.2% of its dispersion relation, measured −0.04%); propagation speed (within 1%); interference maxima (path difference = mλ); fringe spacing (laser within 0.01% of λD/d); single-slit sinc² envelope; FDTD stability; CFL limit exactly 1/√2; boundaries; FDTD against the analytical model |
 | **Solver validation** | Every field of every solver against zero, negative, −10⁻³⁰⁰, NaN, ±Infinity, undefined, empty, non-numeric and overflowing text; inclusive range bounds; tiny and huge valid values must give finite results; garbage must never throw |
 
 ### UI, by your checklist
@@ -100,7 +100,7 @@ Nothing is validated against the code itself (no "golden" numbers copied from a 
 2. **Conservation laws.**
    - energy in undamped systems
    - the work–energy theorem with drag (the drag work is integrated alongside the motion)
-   - the FDTD scheme's exactly conserved discrete energy
+   - the FDTD scheme's conserved discrete energy (rigid edges, no source; float32 round-off only)
 3. **Limits and symmetries.**
    - k → 0 recovers the ideal projectile
    - small angles recover T₀
@@ -165,13 +165,13 @@ Run `npm run test:coverage` (V8 provider). The HTML report is in `coverage/index
 | Area | Lines | Branches | Functions | Floor enforced (lines / functions / branches) |
 |---|---|---|---|---|
 | `src/physics` | 99.7% | 93.4% | 99.4% | 95 / 95 / 88 |
-| `src/simulation` | 98.4% | 89.2% | 97.7% | 92 / 92 / 80 |
+| `src/simulation` | 97.2% | 89.6% | 97.1% | 92 / 92 / 80 |
 | `src/utils` | 100% | 97.8% | 100% | 95 / 95 / 90 |
-| `src/experiments` | 100% | 97.4% | 100% | 95 / 95 / 90 |
+| `src/experiments` | 100% | 97.7% | 100% | 95 / 95 / 90 |
 | `src/rendering` | 89.6% | 63.2% | 87.5% | — |
-| `src/components` | 84.5% | 78.2% | 82.3% | — |
-| `src/pages` | 81.0% | 71.9% | 76.7% | — |
-| Whole project | 91.6% | 78.4% | 88.4% | — |
+| `src/components` | 84.9% | 78.9% | 82.9% | — |
+| `src/pages` | 81.3% | 72.5% | 77.2% | — |
+| Whole project | 91.7% | 78.9% | 88.7% | — |
 
 The floors cover only the code whose *correctness* the project depends on. Page components are covered by behaviour (UI and E2E tests), not chased to a percentage. The lowest-covered UI files are deliberate gaps (§9).
 

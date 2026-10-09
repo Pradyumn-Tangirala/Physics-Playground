@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import {
-    LOG_INTERVALS, MAX_LOG_ROWS, clearLog, logHeader, startLogging, stopLogging,
+    LOG_INTERVALS, MAX_LOG_ROWS, clearLog, hasUnsavedRows, logHeader, markExported, startLogging, stopLogging,
 } from '../simulation/dataLog';
 import { toCsv } from '../utils/csv';
 import { downloadText, timestampedName } from './download';
@@ -35,6 +35,8 @@ export default function DataLogPanel({ log, report }) {
             header: logHeader(log),
             rows: log.rows,
         }));
+        markExported(log);
+        refresh();
     };
 
     const rows = log.rows.length;
@@ -62,6 +64,7 @@ export default function DataLogPanel({ log, report }) {
             <p className={styles.status} aria-live="polite">
                 {log.recording ? 'Recording: ' : ''}{rows.toLocaleString('en')} rows stored
                 {log.full && ` (limit of ${MAX_LOG_ROWS.toLocaleString('en')} reached; logging stopped)`}
+                {rows > 0 && !log.recording && (hasUnsavedRows(log) ? ', not yet exported' : ', all exported')}
             </p>
         </section>
     );

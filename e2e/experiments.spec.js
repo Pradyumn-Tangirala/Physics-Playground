@@ -74,3 +74,31 @@ test('a solved problem opens in its lab with "Simulate this"', async ({ page }) 
     await expect(field(page, 'Length L')).toHaveValue('1.50');
     await expect(field(page, 'Start Angle')).toHaveValue('40');
 });
+
+test('the accuracy-vs-cost study runs on a Web Worker while the page keeps animating', async ({ page }) => {
+    const workers = [];
+    page.on('worker', (worker) => workers.push(worker.url()));
+    await page.goto('#/numerical-methods');
+    await page.evaluate(() => {
+        window.__longestFrameGap = 0;
+        let last = null;
+        const watch = (now) => {
+            if (last !== null) window.__longestFrameGap = Math.max(window.__longestFrameGap, now - last);
+            last = now;
+            requestAnimationFrame(watch);
+        };
+        requestAnimationFrame(watch);
+    });
+    await page.waitForTimeout(500); // let the page settle before measuring
+    await page.evaluate(() => { window.__longestFrameGap = 0; });
+    await page.getByRole('button', { name: 'Run accuracy vs cost' }).click();
+    const table = page.getByRole('region', { name: 'Accuracy and cost per method and timestep' });
+    await expect(table.getByRole('row')).toHaveCount(1 + 8, { timeout: 20_000 });
+    await expect(table).toContainText('7.30×10⁻⁴ · 400'); // RK4 at Δt = 100 ms, the same as on the main thread
+    expect(workers.some((url) => /studyWorker/.test(url))).toBe(true);
+    const gap = await page.evaluate(() => window.__longestFrameGap);
+    test.info().annotations.push({ type: 'longest frame gap (ms)', description: gap.toFixed(1) });
+    // Measured on the development machine: 33 ms with the worker; 167 ms when the
+    // same study runs on the main thread (Worker removed), which this would catch.
+    expect(gap).toBeLessThan(100);
+});

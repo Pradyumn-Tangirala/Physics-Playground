@@ -186,7 +186,9 @@ describe('damping regimes (small angle, ω₀ = √(g/L))', () => {
 describe('exact motion (Jacobi elliptic solution)', () => {
     const P2 = { g: 9.81, length: 1 };
 
-    it.each([5, 60, 150])('agrees with fine-step RK4 at θ₀ = %s° over 10 s', async (deg) => {
+    // Measured largest difference at every step: 1.5×10⁻¹¹ rad (60°), 2.5×10⁻¹¹ rad (150°). That is
+    // RK4's own error at Δt = 1 ms, so the two independent solutions agree to within it.
+    it.each([5, 60, 150])('agrees with RK4 at Δt = 1 ms to 5×10⁻¹¹ rad at every step over 10 s (θ₀ = %s°)', async (deg) => {
         const { rk4 } = await import('../integrators');
         const a = (deg * Math.PI) / 180;
         const f = derivative({ ...P2, damping: 0 });
@@ -195,9 +197,9 @@ describe('exact motion (Jacobi elliptic solution)', () => {
         let worst = 0;
         for (let n = 1; n <= 10_000; n++) {
             y = rk4.step(y, f, h);
-            if (n % 250 === 0) worst = Math.max(worst, Math.abs(exactMotion(a, P2.length, P2.g, n * h)[0] - y[0]));
+            worst = Math.max(worst, Math.abs(exactMotion(a, P2.length, P2.g, n * h)[0] - y[0]));
         }
-        expect(worst).toBeLessThan(1e-9);
+        expect(worst).toBeLessThan(5e-11);
     });
 
     it('starts at rest at θ₀ and returns there after one exact period', () => {

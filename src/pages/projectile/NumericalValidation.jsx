@@ -35,7 +35,7 @@ export default function NumericalValidation({ p, predictions, integratorName }) 
 
     return (
         <section className={styles.card} aria-labelledby="validation-title">
-            <h2 id="validation-title">Validation: numerical vs analytical (no drag)</h2>
+            <h2 id="validation-title">Verification: numerical vs analytical (no drag)</h2>
             <ValidationPanel title={`${integratorName} at Δt = ${formatMilliseconds(p.dt)} vs the closed form`} rows={validationRows} />
             <p className={styles.caption}>
                 With drag switched off the exact solution is known, so each method's error can be measured directly,

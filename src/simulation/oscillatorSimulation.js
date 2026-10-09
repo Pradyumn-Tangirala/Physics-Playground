@@ -73,7 +73,7 @@ export const oscillatorSimulation = {
             { y: state.y, t: state.t },
             (s, h) => {
                 const y = integrator.step(s.y, f, h, s.t);
-                newPeriod = detectPeriod(state.detector, s.t, s.y[0], s.t + h, y[0]) ?? newPeriod;
+                newPeriod = detectPeriod(state.detector, s.t, s.y, s.t + h, y, f) ?? newPeriod;
                 sample?.(s.t + h, y);
                 return { y, t: s.t + h };
             },
@@ -104,10 +104,16 @@ export const oscillatorSimulation = {
             state.energyRef = state.energy.total;
             state.paramKey = key;
         } else if (state.paramKey !== key) {
-            // The system changed under the moving bob: what follows is a different
-            // motion, so restart the energy reference and the period measurement.
             state.energyRef = state.energy.total;
             state.paramKey = key;
+            // Still held where it was released (no time has passed, e.g. during a
+            // drag): the new parameters simply apply from the release. This does
+            // not depend on whether React delivered the new parameters before or
+            // after the frame that saw the drag.
+            if (state.release && state.t === state.release.t) return;
+            // The system changed under the moving bob: what follows is a different
+            // motion, so the exact solution no longer applies and the period
+            // measurement restarts.
             state.release = null;
             state.detector = createPeriodDetector();
         }
@@ -160,7 +166,6 @@ export function validationRows(state, params) {
         rows.push(params.damping > 0 || !release
             ? { quantity: 'Period T', reference: 'exact, 4√(L/g)·K(k²)', unavailable: params.damping > 0 ? 'No closed form with damping (γ > 0).' : 'Parameters changed mid-swing; reset or drag to release again.' }
             : { quantity: 'Period T', reference: 'exact, 4√(L/g)·K(k²)', analytical: pendulum.exactPeriod(amplitude, params.lengthM, params.gravity), simulated: measured, unit: 's' });
-        rows.push({ quantity: 'Period vs small-angle', reference: 'T₀ = 2π√(L/g)', analytical: analyticPeriod(params), simulated: measured, unit: 's' });
         if (exact !== null && amplitude !== 0) {
             rows.push({ quantity: 'Angle θ(t)', reference: 'exact, Jacobi elliptic solution; rel. to θ₀', analytical: exact, simulated: state.y[0], unit: 'rad', scale: Math.abs(amplitude) });
         }
@@ -177,6 +182,19 @@ export function validationRows(state, params) {
         rows.push({ quantity: 'Energy E', reference: 'conserved: E at release', analytical: state.energyRef ?? NaN, simulated: state.energy.total, unit: 'J' });
     }
     return rows;
+}
+
+/**
+ * The small-angle period T₀ = 2π√(L/g) beside the exact period of the current
+ * release, for an undamped pendulum: { smallAngle, exact, longerBy }, or null.
+ * Their difference is the linearisation sin θ ≈ θ, a property of the model and
+ * not a numerical error, so it is reported apart from the validation rows.
+ */
+export function smallAngleComparison(state, params) {
+    if (params.mode !== 'pendulum' || params.damping !== 0 || !state.release) return null;
+    const smallAngle = analyticPeriod(params);
+    const exact = pendulum.exactPeriod(state.release.position, params.lengthM, params.gravity);
+    return { smallAngle, exact, longerBy: exact / smallAngle - 1 };
 }
 
 /** Columns of the data log for each mode (simulation/dataLog.js adds the run number). */

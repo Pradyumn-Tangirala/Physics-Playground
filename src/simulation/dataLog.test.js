@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { clearLog, createDataLog, logHeader, recordSample, startLogging, stopLogging } from './dataLog';
+import { clearLog, createDataLog, hasUnsavedRows, logHeader, markExported, recordSample, startLogging, stopLogging } from './dataLog';
 
 const COLUMNS = [{ key: 't', label: 't', unit: 's' }, { key: 'x', label: 'x', unit: 'm' }, { key: 'method', label: 'method' }];
 const feed = (log, times) => times.forEach((t) => recordSample(log, t, () => [t, 2 * t, 'rk4']));
@@ -66,5 +66,19 @@ describe('data log', () => {
 
     it('labels columns with their units, after the run number', () => {
         expect(logHeader(createDataLog(COLUMNS))).toEqual(['run', 't (s)', 'x (m)', 'method']);
+    });
+
+    it('knows whether every row has been exported', () => {
+        const log = createDataLog(COLUMNS);
+        expect(hasUnsavedRows(log)).toBe(false);
+        startLogging(log, 0);
+        recordSample(log, 0.1, () => [0.1, 1, 'rk4']);
+        expect(hasUnsavedRows(log)).toBe(true);
+        markExported(log);
+        expect(hasUnsavedRows(log)).toBe(false);
+        recordSample(log, 0.2, () => [0.2, 1, 'rk4']);
+        expect(hasUnsavedRows(log)).toBe(true);
+        clearLog(log);
+        expect(hasUnsavedRows(log)).toBe(false);
     });
 });

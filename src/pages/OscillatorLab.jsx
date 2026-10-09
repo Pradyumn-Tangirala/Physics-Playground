@@ -11,9 +11,10 @@ import ModelCard from '../components/ModelCard';
 import controls from '../components/SimulationControls.module.css';
 import { useSimulation } from '../simulation/useSimulation';
 import { useLiveValue } from '../simulation/useLiveValue';
-import { createDataLog, recordSample } from '../simulation/dataLog';
+import { recordSample } from '../simulation/dataLog';
+import { useDataLog } from '../simulation/dataLogStore';
 import {
-    oscillatorSimulation, holdAt, validationRows, logColumns, logRow,
+    oscillatorSimulation, holdAt, validationRows, smallAngleComparison, logColumns, logRow,
 } from '../simulation/oscillatorSimulation';
 import { OSCILLATOR_LAB, sliderProps } from '../experiments/labs';
 import { useExperimentFromUrl, useExperimentUrl } from '../experiments/useExperiment';
@@ -26,6 +27,7 @@ import {
 } from '../rendering/oscillatorLayout';
 import { TIMESTEP_OPTIONS } from '../utils/timeStep';
 import { clamp } from '../utils/math';
+import { formatMeasurement, formatPercent } from '../utils/format';
 import { degToRad, radToDeg } from '../utils/units';
 import styles from './OscillatorLab.module.css';
 
@@ -42,9 +44,10 @@ const OscillatorLab = () => {
     const [params, setParams] = useState(initial);
     const [isDragging, setIsDragging] = useState(false);
     const dragRef = useRef(null);
-    const [log, setLog] = useState(() => createDataLog(logColumns(initial.mode)));
     const link = useExperimentUrl(OSCILLATOR_LAB, params);
     const { mode } = params;
+    // One log per mode: their columns differ, and switching mode keeps the other mode's rows.
+    const log = useDataLog(`oscillator-${mode}`, logColumns(mode));
     const set = (key) => (value) => setParams((p) => ({ ...p, [key]: value }));
 
     const { simRef, isPaused, togglePause, resume, pause, reset } = useSimulation(oscillatorSimulation, params, {
@@ -55,6 +58,7 @@ const OscillatorLab = () => {
         onSample: (t, y) => recordSample(log, t, () => logRow(t, y, params)),
     });
     const validation = useLiveValue(() => validationRows(simRef.current.getState(), params));
+    const smallAngle = useLiveValue(() => smallAngleComparison(simRef.current.getState(), params));
 
     // ---------- direct manipulation (pointer events: mouse, pen and touch) ----------
 
@@ -122,7 +126,6 @@ const OscillatorLab = () => {
         const nextParams = { ...params, mode: next };
         setParams(nextParams);
         reset(nextParams);
-        setLog(createDataLog(logColumns(next))); // the columns differ, so a pendulum log cannot continue as a spring log
     };
 
     // Start angle / amplitude are initial conditions, so changing them restarts
@@ -219,9 +222,15 @@ const OscillatorLab = () => {
                 </p>
 
                 <div className={styles.panels}>
-                    <ValidationPanel compact title="Validation" rows={validation}
-                        caption="Period: time between downward zero crossings, interpolated within the step. Updated four times a second." />
-                    <DataLogPanel log={log} report={report} />
+                    <ValidationPanel compact title="Verification" rows={validation}
+                        caption="Period: time between downward zero crossings, located within the step by cubic Hermite interpolation. Updated four times a second." />
+                    {smallAngle && (
+                        <p className={`${controls.note} ${controls.noteTight}`}>
+                            Small-angle formula 2π√(L/g) = {formatMeasurement(smallAngle.smallAngle)} s. The exact period
+                            is {formatPercent(smallAngle.longerBy)} longer: that is the sin θ ≈ θ approximation, not a numerical error.
+                        </p>
+                    )}
+                    <DataLogPanel key={`oscillator-${mode}`} log={log} report={report} />
                 </div>
                 <p className={controls.note}>
                     <Link to="/numerical-methods">Compare Euler, symplectic Euler and RK4 side by side →</Link>

@@ -94,6 +94,40 @@ describe('the address bar follows the experiment (real App, hash routing)', () =
         fireEvent.change(screen.getByRole('slider', { name: 'Gravity' }), { target: { value: '5' } });
         expect(screen.getByLabelText('Guided experiment')).toHaveValue('');
     });
+
+    it('keeps the data log when a guided experiment remounts the lab, and guards a reload until it is exported', async () => {
+        const files = captureDownloads();
+        const reloadIsGuarded = () => {
+            const event = new Event('beforeunload', { cancelable: true });
+            window.dispatchEvent(event);
+            return event.defaultPrevented;
+        };
+        window.location.hash = '#/shm';
+        render(<App />);
+        await screen.findByRole('heading', { name: 'Oscillator Lab' });
+        const panel = () => screen.getByRole('region', { name: 'Data logging' });
+        const stored = () => Number(within(panel()).getByText(/rows stored/).textContent.match(/([\d,]+) rows/)[1].replace(/,/g, ''));
+
+        await userEvent.click(within(panel()).getByRole('button', { name: '● Start logging' }));
+        runFrames(30);
+        await waitFor(() => expect(stored()).toBeGreaterThan(0)); // the counter refreshes on a timer
+        const before = stored();
+        expect(reloadIsGuarded()).toBe(true);
+
+        await userEvent.selectOptions(screen.getByLabelText('Guided experiment'), 'nonlinear-pendulum');
+        await waitFor(() => expect(numberField('Start Angle')).toHaveValue(90)); // remounted from the new link
+        runFrames(30); // still recording: the new experiment continues the log as run 2
+        await userEvent.click(within(panel()).getByRole('button', { name: '■ Stop logging' }));
+        expect(stored()).toBeGreaterThan(before);
+        expect(within(panel()).getByText(/rows stored/)).toHaveTextContent('not yet exported');
+
+        await userEvent.click(within(panel()).getByRole('button', { name: 'Export CSV' }));
+        const lines = (await files[0].blob.text()).split('\r\n');
+        expect(lines.some((l) => l.startsWith('1,'))).toBe(true);
+        expect(lines.some((l) => l.startsWith('2,'))).toBe(true);
+        expect(within(panel()).getByText(/rows stored/)).toHaveTextContent('all exported');
+        expect(reloadIsGuarded()).toBe(false);
+    });
 });
 
 describe('Simulate this', () => {
@@ -142,7 +176,7 @@ describe('validation, logging and export in the Oscillator Lab', () => {
     it('shows analytical vs simulated values with absolute and relative errors', async () => {
         renderPage(<OscillatorLab />, '/shm', '?angle=20&length=1&g=9.81');
         runFrames(200); // > 1.5 periods
-        const panel = screen.getByRole('region', { name: 'Validation' });
+        const panel = screen.getByRole('region', { name: 'Verification' });
         await waitFor(() => expect(within(panel).getAllByRole('row')[1]).toHaveTextContent(/^Period Texact.*2\.0\d+ s.*2\.0\d+ s.*%$/));
         expect(within(panel).getByRole('columnheader', { name: 'Rel. error' })).toBeInTheDocument();
     });
@@ -178,7 +212,7 @@ describe('Numerical Methods Lab', () => {
     it('runs the accuracy-vs-cost experiment and tabulates it', async () => {
         renderPage(<NumericalMethodsLab />, '/numerical-methods');
         await userEvent.click(screen.getByRole('button', { name: 'Run accuracy vs cost' }));
-        const table = screen.getByRole('region', { name: 'Accuracy and cost per method and timestep' });
+        const table = await screen.findByRole('region', { name: 'Accuracy and cost per method and timestep' }, { timeout: 5000 });
         expect(within(table).getAllByRole('row')).toHaveLength(1 + 8);
         expect(within(table).getByText(/^7\.30×10⁻⁴ · 400 · \d+ µs$/)).toBeInTheDocument(); // RK4, Δt = 100 ms
     });

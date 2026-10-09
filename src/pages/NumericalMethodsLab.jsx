@@ -12,7 +12,8 @@ import NumericalMethodsExplainer from '../components/NumericalMethodsExplainer';
 import controls from '../components/SimulationControls.module.css';
 import { useSimulation } from '../simulation/useSimulation';
 import { useLiveValue } from '../simulation/useLiveValue';
-import { createDataLog, recordSample } from '../simulation/dataLog';
+import { recordSample } from '../simulation/dataLog';
+import { useDataLog } from '../simulation/dataLogStore';
 import { integratorComparison, evaluations, LOG_COLUMNS, logRows } from '../simulation/integratorComparison';
 import { METHODS_LAB, sliderProps } from '../experiments/labs';
 import { useExperimentFromUrl, useExperimentUrl } from '../experiments/useExperiment';
@@ -21,7 +22,7 @@ import { TIMESTEP_OPTIONS } from '../utils/timeStep';
 import { formatScientific } from '../utils/format';
 import { INTEGRATORS, INTEGRATOR_LIST } from '../physics/integrators';
 import { smallAnglePeriod, exactPeriod } from '../physics/pendulum/pendulum';
-import { periodVsAmplitude, accuracyVsCost } from '../physics/pendulum/experiments';
+import { runStudy } from '../simulation/runStudy';
 import { degToRad } from '../utils/units';
 import {
     METHOD_COLORS, renderComparisonPendulums, renderEnergyDrift, renderTrajectoryError, renderPhaseSpace,
@@ -63,7 +64,8 @@ const NumericalMethodsLab = () => {
     const [periodMethod, setPeriodMethod] = useState('rk4');
     const [periodStudy, setPeriodStudy] = useState(null);
     const [costStudy, setCostStudy] = useState(null); // { rows, key }
-    const [log] = useState(() => createDataLog(LOG_COLUMNS));
+    const [running, setRunning] = useState({ cost: false, period: false }); // studies run on a Web Worker
+    const log = useDataLog('numerical-methods', LOG_COLUMNS);
     const link = useExperimentUrl(METHODS_LAB, params);
     const { amplitudeDeg, lengthM, gravity, damping, dt } = params;
     const visible = Object.fromEntries(INTEGRATOR_LIST.map((m) => [m.id, params.methods.includes(m.id)]));
@@ -98,18 +100,25 @@ const NumericalMethodsLab = () => {
     }));
 
     const costKey = JSON.stringify([amplitudeDeg, lengthM, gravity]);
-    const runCostStudy = () => setCostStudy({
-        key: costKey,
-        rows: accuracyVsCost({
+    /** Runs a study on the worker, marking it as running meanwhile; `done(result)` stores the result. */
+    const study = (which, name, args, done) => {
+        setRunning((r) => ({ ...r, [which]: true }));
+        runStudy(name, args)
+            .then(done)
+            .finally(() => setRunning((r) => ({ ...r, [which]: false })));
+    };
+    const runCostStudy = () => {
+        const key = costKey;
+        study('cost', 'accuracyVsCost', {
             amplitude: degToRad(amplitudeDeg), length: lengthM, g: gravity,
-            integrators: INTEGRATOR_LIST, dts: TIMESTEP_OPTIONS, duration: COST_DURATION,
-            now: () => performance.now(),
-        }),
-    });
+            integratorIds: INTEGRATOR_LIST.map((m) => m.id), dts: TIMESTEP_OPTIONS, duration: COST_DURATION,
+        }, (rows) => setCostStudy({ key, rows }));
+    };
     const runPeriodStudy = () => {
         const integrator = INTEGRATORS[periodMethod];
-        const rows = periodVsAmplitude({ amplitudesDeg: PERIOD_AMPLITUDES, length: lengthM, g: gravity, integrator, dt });
-        setPeriodStudy({ rows, integratorId: integrator.id, integratorName: integrator.name, dt });
+        study('period', 'periodVsAmplitude', {
+            amplitudesDeg: PERIOD_AMPLITUDES, length: lengthM, g: gravity, integratorId: integrator.id, dt,
+        }, (rows) => setPeriodStudy({ rows, integratorId: integrator.id, integratorName: integrator.name, dt }));
     };
 
     const T0 = smallAnglePeriod(lengthM, gravity);
@@ -229,7 +238,7 @@ const NumericalMethodsLab = () => {
                         </tbody>
                     </table>
                 </ScrollRegion>
-                <ValidationPanel title="Validation: measured period" rows={periodRows}
+                <ValidationPanel title="Verification: measured period" rows={periodRows}
                     caption={`Period: time between downward zero crossings of θ, interpolated within the step. Small-angle T₀ = 2π√(L/g) = ${T0.toFixed(5)} s for comparison.`} />
             </section>
 
@@ -253,14 +262,15 @@ const NumericalMethodsLab = () => {
                 <h2 id="cost-title">Experiment: accuracy vs cost</h2>
                 <p className={styles.caption}>
                     Integrates the undamped pendulum (θ₀ = {amplitudeDeg}°, L = {lengthM} m, g = {gravity} m/s²) for {COST_DURATION} s
-                    with every method at every Δt from 0.5 ms to 100 ms, and records the largest angle error against the exact
+                    with every method at every Δt from 0.5 ms to 100 ms (in a background thread), and records the largest angle error against the exact
                     solution, the derivative evaluations used and the measured time. A method is better when its line lies further
                     down and to the left: less error for the same work.
                 </p>
                 <div className={styles.experimentControls}>
-                    <button className={`${controls.primaryButton} ${controls.actionButton}`} onClick={runCostStudy}>
+                    <button className={`${controls.primaryButton} ${controls.actionButton}`} onClick={runCostStudy} disabled={running.cost}>
                         Run accuracy vs cost
                     </button>
+                    {running.cost && <span role="status">Running 24 integrations…</span>}
                 </div>
                 {costStudy && costStudy.key !== costKey && (
                     <p className={styles.caption} role="status">The settings have changed since this run. Press Run again to update it.</p>
@@ -283,9 +293,10 @@ const NumericalMethodsLab = () => {
                     <select id="pva-method" className={controls.select} value={periodMethod} onChange={(e) => setPeriodMethod(e.target.value)}>
                         {INTEGRATOR_LIST.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
                     </select>
-                    <button className={`${controls.primaryButton} ${controls.actionButton}`} onClick={runPeriodStudy}>
+                    <button className={`${controls.primaryButton} ${controls.actionButton}`} onClick={runPeriodStudy} disabled={running.period}>
                         Run experiment
                     </button>
+                    {running.period && <span role="status">Running {PERIOD_AMPLITUDES.length} releases…</span>}
                 </div>
                 <div className={`${styles.canvasCard} ${styles.chart}`}>
                     <SimulationCanvas canvasRef={periodRef} role="img" aria-label="Period divided by small-angle period, against release amplitude" />

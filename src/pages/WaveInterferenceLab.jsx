@@ -271,7 +271,7 @@ const WaveInterferenceLab = () => {
 
             <section className={styles.card} aria-labelledby="measure-title">
                 <h2 id="measure-title">{double ? 'Fringe spacing: predicted vs measured' : 'Central maximum: predicted vs measured'}</h2>
-                <ValidationPanel title="Validation: phasor-sum simulation vs analytical formulas" rows={validationRows} />
+                <ValidationPanel title="Verification: phasor-sum simulation vs analytical formulas" rows={validationRows} />
                 <p className={styles.caption}>
                     Profile error, RMS(simulated − theory) / theoretical peak over the whole screen shown:
                     <strong> {analysis.profileErrorPct.toFixed(3)}%</strong>. "Sim vs formula" includes the small-angle
