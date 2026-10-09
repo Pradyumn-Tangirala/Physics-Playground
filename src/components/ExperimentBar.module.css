@@ -1,0 +1,102 @@
+.bar {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 18px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    color: #aaa;
+    font-size: 0.85rem;
+}
+
+.row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+}
+
+.select {
+    max-width: 60%;
+    padding: 4px 8px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    font: inherit;
+}
+
+.select option {
+    background: #1a1a1a;
+}
+
+.select:focus-visible {
+    outline: none;
+    border-color: #4facfe;
+}
+
+.lookFor {
+    margin: 0;
+    padding: 8px 10px;
+    border-left: 3px solid #4facfe;
+    background: rgba(79, 172, 254, 0.08);
+    color: #ccc;
+    line-height: 1.5;
+}
+
+.copy {
+    min-height: 40px;
+    padding: 8px 12px;
+    border: 1px solid rgba(79, 172, 254, 0.6);
+    border-radius: 8px;
+    background: transparent;
+    color: #9fd3ff;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.copy:hover {
+    background: rgba(79, 172, 254, 0.12);
+}
+
+.copy:focus-visible {
+    outline: 2px solid #4facfe;
+    outline-offset: 2px;
+}
+
+.status:empty {
+    display: none;
+}
+
+.status {
+    color: #7bed9f;
+}
+
+.manual {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.manual input {
+    padding: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.3);
+    color: #eee;
+    font: inherit;
+}
+
+.rejected {
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 159, 67, 0.4);
+    background: rgba(255, 159, 67, 0.08);
+    color: #ffcc99;
+}
+
+.rejected ul {
+    margin: 6px 0 0;
+    padding-left: 18px;
+}

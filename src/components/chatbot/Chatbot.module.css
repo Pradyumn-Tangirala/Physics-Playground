@@ -1,0 +1,159 @@
+.window {
+    position: fixed;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    background: rgba(20, 20, 30, 0.85);
+    backdrop-filter: blur(20px);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    font-family: 'Inter', sans-serif;
+    opacity: 0;
+    pointer-events: none;
+    transform: scale(0.9) translateY(20px);
+    transform-origin: bottom right;
+    transition: opacity 0.3s cubic-bezier(0.19, 1, 0.22, 1), transform 0.3s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+.open {
+    opacity: 1;
+    pointer-events: auto;
+    transform: none;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 20px;
+    background: linear-gradient(90deg, #ff4b2b, #ff416c);
+    color: white;
+    box-shadow: 0 5px 15px rgba(255, 75, 43, 0.3);
+}
+
+.header h3 {
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
+.tag {
+    font-size: 0.75rem;
+    opacity: 0.8;
+}
+
+.close {
+    margin-left: auto;
+    border: none;
+    background: transparent;
+    color: white;
+    font-size: 1.2rem;
+    cursor: pointer;
+}
+
+.messages {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.message {
+    max-width: 80%;
+    padding: 12px 16px;
+    border-radius: 16px;
+    color: white;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.user {
+    align-self: flex-end;
+    border-bottom-right-radius: 4px;
+    background: linear-gradient(135deg, #ff4b2b, #ff416c);
+}
+
+.bot {
+    align-self: flex-start;
+    border-bottom-left-radius: 4px;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.form {
+    display: flex;
+    gap: 10px;
+    padding: 15px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.input {
+    flex: 1;
+    padding: 12px 20px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 25px;
+    background: rgba(255, 255, 255, 0.05);
+    color: white;
+    font-size: 0.95rem;
+    outline: none;
+    transition: background 0.3s;
+}
+
+.input:focus {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.input:focus-visible {
+    border-color: #ff6b81;
+}
+
+.send,
+.fab {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #ff4b2b, #ff416c);
+    color: white;
+    cursor: pointer;
+}
+
+.send {
+    width: 45px;
+    height: 45px;
+    box-shadow: 0 5px 15px rgba(255, 75, 43, 0.3);
+    transition: transform 0.2s;
+}
+
+.send:hover {
+    transform: scale(1.1);
+}
+
+.fab {
+    position: fixed;
+    z-index: 1001;
+    width: var(--fab-size);
+    height: var(--fab-size);
+    box-shadow: 0 10px 30px rgba(255, 75, 43, 0.5);
+    font-size: 1.8rem;
+    cursor: grab;
+    user-select: none;
+    touch-action: none;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.fab:hover {
+    transform: scale(1.1) rotate(5deg);
+}
+
+.dragging {
+    cursor: grabbing;
+    transition: none;
+}

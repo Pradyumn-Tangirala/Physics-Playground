@@ -1,0 +1,248 @@
+.shell {
+    min-height: 100vh;
+    background: #0b0b12;
+}
+
+.page {
+    min-height: 100vh;
+    box-sizing: border-box;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    max-width: 1400px;
+    margin: 0 auto;
+    color: #eee;
+    font-family: 'Inter', sans-serif;
+}
+
+.header {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+}
+
+.header h1 {
+    margin: 0;
+    font-size: 2rem;
+    background: linear-gradient(90deg, #48dbfb, #feca57, #ff6b6b);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.header p {
+    margin: 6px 0 0;
+    color: #aaa;
+}
+
+.topRow {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 340px;
+    gap: 20px;
+    align-items: start;
+}
+
+.chartRow {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 20px;
+}
+
+@media (max-width: 900px) {
+    .topRow,
+    .chartRow {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+.canvasCard {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: #11111b;
+}
+
+.chartToggle {
+    position: absolute;
+    top: 6px;
+    right: 12px;
+    font-size: 0.8rem;
+    color: #aaa;
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+
+.card {
+    padding: 20px 24px;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.card h2 {
+    margin: 0;
+    font-size: 1.3rem;
+}
+
+.caption {
+    margin: 0;
+    color: #aaa;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.table th,
+.table td {
+    padding: 8px 10px;
+    text-align: right;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.table th:first-child,
+.table td:first-child {
+    text-align: left;
+}
+
+.table td {
+    font-family: monospace;
+}
+
+.table th {
+    color: #999;
+    font-weight: 600;
+}
+
+.methods {
+    margin: 0 0 18px;
+    padding: 10px 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 14px;
+    font-size: 0.85rem;
+}
+
+.methods legend {
+    padding: 0 4px;
+    color: #999;
+}
+
+.methods label {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    color: var(--method);
+}
+
+.methods input {
+    accent-color: var(--method);
+}
+
+.experimentControls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    color: #aaa;
+    font-size: 0.9rem;
+}
+
+.sticky {
+    position: sticky;
+    top: 16px;
+}
+
+@media (max-width: 900px) {
+    .sticky {
+        position: relative;
+        top: 0;
+    }
+}
+
+.groupLabel {
+    margin: 4px 0 12px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    color: #999;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.warning {
+    margin: 0 0 16px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 159, 67, 0.4);
+    background: rgba(255, 159, 67, 0.08);
+    color: #ffcc99;
+    font-size: 0.8rem;
+    line-height: 1.5;
+}
+
+
+.trajectoryCard {
+    height: 520px;
+}
+
+@media (max-width: 900px) {
+    .trajectoryCard {
+        height: 360px;
+    }
+}
+
+.subTitle {
+    margin: 8px 0 0;
+    font-size: 1rem;
+    color: #ddd;
+}
+
+.measureRow {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 6px 20px;
+    font-size: 0.85rem;
+    font-family: monospace;
+    color: #ccc;
+}
+
+/* Canvas card heights: the main view of a lab, and charts below it. */
+.stage {
+    height: 420px;
+}
+
+.stageCompact {
+    height: 320px;
+}
+
+.chart {
+    height: 340px;
+}
+
+.chartLarge {
+    height: 360px;
+}
+
+.measureCanvas {
+    cursor: crosshair;
+}
+
+.header > button {
+    flex-shrink: 0;
+    white-space: nowrap;
+}

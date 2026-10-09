@@ -1,0 +1,82 @@
+/* Wide screens: the canvas fills the viewport height next to a scrollable
+   control column. Narrow screens (tablets in portrait, phones): the canvas
+   comes first at a usable height and the controls follow in the page flow. */
+.page {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) clamp(320px, 30vw, 420px);
+    min-height: 100vh;
+    background: #1a1a2e;
+    font-family: 'Inter', sans-serif;
+}
+
+.stage {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    min-width: 0;
+}
+
+@media (max-width: 899px) {
+    .page {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .stage {
+        position: relative;
+        height: clamp(480px, 72svh, 760px);
+    }
+}
+
+.modeSwitch {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 30px;
+    padding: 5px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.modeSwitch button {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s, color 0.3s;
+}
+
+.modeSwitch button[data-mode='pendulum'][aria-pressed='true'] {
+    background: #f1c40f;
+    color: black;
+}
+
+.modeSwitch button[data-mode='spring'][aria-pressed='true'] {
+    background: #e74c3c;
+}
+
+.modeSwitch button:focus-visible {
+    outline: 2px solid #4facfe;
+    outline-offset: 2px;
+}
+
+.panels {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 24px;
+}
+
+/* Model card: a full-width row under the stage and the controls. */
+.below {
+    grid-column: 1 / -1;
+    padding: 24px;
+}
+
+@media (max-width: 899px) {
+    .below {
+        padding: 16px;
+    }
+}
