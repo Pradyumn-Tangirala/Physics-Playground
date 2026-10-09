@@ -30,7 +30,7 @@ jobs:
       - run: npm run build
       - name: Upload coverage report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: coverage
           path: coverage/
@@ -60,7 +60,7 @@ jobs:
       - run: npx playwright test --project=${{ matrix.project }}
       - name: Upload Playwright report
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: playwright-report-${{ matrix.project }}
           path: playwright-report/
@@ -87,7 +87,7 @@ jobs:
         continue-on-error: true
       - name: Upload measurements
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: performance
           path: test-results/perf-*.json
