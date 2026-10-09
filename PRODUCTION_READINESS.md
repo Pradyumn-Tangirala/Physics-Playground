@@ -12,7 +12,7 @@ Two GitHub Actions workflows, both using `npm ci` against the committed `package
 |---|---|
 | `verify` | `npm ci` → `npm run lint` → `npm run test:coverage` (fails below the coverage floors) → `npm run build`; uploads the coverage report |
 | `e2e` (matrix, after `verify`) | Playwright against the production build in **chromium, firefox, edge (msedge), mobile (Pixel 7), tablet (Galaxy Tab S4)**; `fail-fast: false`, so every browser reports; uploads the HTML report on failure |
-| `performance` (after `verify`) | Frame-time, loop-count and memory-leak checks (Playwright `performance` project) and the kernel benchmarks (`npm run test:perf`); uploads `perf-*.json` |
+| `performance` (after `verify`) | Frame-time, loop-count and memory-leak checks (Playwright `performance` project) and the kernel benchmarks (`npm run test:perf`, recorded but not gating: speed-ups depend on the CPU); uploads `perf-*.json` |
 
 **`deploy.yml`** runs on push to `main` (and by hand).
 
@@ -68,7 +68,7 @@ Measured on the development machine, in the production build in Chromium, at dev
 | Entry bundle (React, router, landing page) | 277.8 kB, 89.4 kB gzipped; each lab is a separate chunk (10–26 kB) loaded on first visit |
 | Analytical wave lab, frame time | 1.67 ms (precompute after a parameter change: 4.7 ms) |
 | FDTD lab | 0.45 ms per solver step; 1.85 ms per drawn frame |
-| Kernel speed-ups against the pre-optimisation code (same inputs) | Wave field 2.7× (8.4× with wide slits), FDTD step 1.5×, blow-up check 6.1× |
+| Kernel speed-ups against the pre-optimisation code (same inputs) | Wave field 2.7× (8.4× with wide slits), FDTD step 1.5×, blow-up check 6.1×. On GitHub's Linux runner the FDTD step measured 0.73× (slower than the original), so that speed-up is specific to this machine |
 | Animation loops | Exactly one per mounted page, zero after leaving it (counted across 3 tours of 6 pages) |
 | Memory | JS heap +1.6 MB after 20 round trips through every lab (120 page changes), against a 15 MB budget |
 | Accuracy-vs-cost experiment (24 timed runs of 10 s simulated time) | Runs in a Web Worker. Longest frame gap during a run: 33 ms, against 167 ms with the study on the main thread (E2E test, budget 100 ms) |

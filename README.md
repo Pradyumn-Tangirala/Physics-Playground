@@ -242,7 +242,7 @@ Measured in the production build in Chromium, at device-pixel ratio 1, on the de
 | Entry bundle (React, router, landing page) | 277.8 kB, 89.4 kB gzipped; each lab is a separate 10–26 kB chunk |
 | Analytical wave lab frame | 1.67 ms (field precompute after a change: 4.7 ms) |
 | FDTD | 0.45 ms per solver step (500 × 301 grid), 1.85 ms per drawn frame |
-| Speed-up over the first implementations | Wave field 2.7× (8.4× with wide slits); FDTD step 1.5× |
+| Speed-up over the first implementations | Wave field 2.7× (8.4× with wide slits). FDTD step 1.5× on the development machine, but 0.73× (slower) on GitHub's Linux CI runner, so that optimisation is not a portable win |
 | Memory | +1.6 MB JS heap after 20 round trips through every lab |
 | Animation loops | Exactly one per mounted page, none after leaving |
 | Accuracy-vs-cost study (24 timed integrations) | Runs in a Web Worker: longest frame gap 33 ms during the run, against 167 ms when the same study runs on the main thread |

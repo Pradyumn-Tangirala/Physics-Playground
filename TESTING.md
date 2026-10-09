@@ -151,7 +151,7 @@ Tolerances come from the theory, not from what happened to pass. Where a result 
 
 | Test | What it measures | Result on the development machine |
 |---|---|---|
-| `npm run test:perf` | The pre-optimisation implementations (kept as baselines in `tests/perf/waves.perf.js`) against the current code, same inputs | Analytical field 2.7× faster (8.4× with wide slits); FDTD step 1.5×; blow-up check 6.1× |
+| `npm run test:perf` | The pre-optimisation implementations (kept as baselines in `tests/perf/waves.perf.js`) against the current code, same inputs | Analytical field 2.7× faster (8.4× with wide slits); FDTD step 1.5×; blow-up check 6.1× (development machine). On the GitHub Actions runner the FDTD step measured 0.73×, so CI records these numbers without failing on them |
 | E2E `performance` project: frame time | The wave renderers' own smoothed frame time, published on the canvas (`data-frame-ms`) | Analytical frame 1.67 ms, precompute 4.7 ms; FDTD 0.45 ms per step, 1.85 ms per draw |
 | E2E: animation loops | `requestAnimationFrame` wrapped to count live loops across 3 rounds of 6 pages | Always exactly 1 |
 | E2E: memory | JS heap after a forced garbage collection, before and after 20 navigation round trips (120 page changes) | +1.6 MB (budget 15 MB; the FDTD page alone allocates about 5 MB, so a leaked page would show at once) |
