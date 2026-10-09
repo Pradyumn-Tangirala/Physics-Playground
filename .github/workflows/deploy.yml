@@ -73,4 +73,4 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - id: deployment
-        uses: actions/deploy-pages@v4 # deploys the artifact built from this commit in the build job
+        uses: actions/deploy-pages@v5 # deploys the artifact built from this commit in the build job
